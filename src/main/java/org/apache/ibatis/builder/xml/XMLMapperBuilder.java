@@ -93,21 +93,21 @@ public class XMLMapperBuilder extends BaseBuilder {
     this.resource = resource;
   }
 
-  //解析
   public void parse() {
-    //如果没有加载过再加载，防止重复加载
+    // 判断是否已经加载过
     if (!configuration.isResourceLoaded(resource)) {
-      //配置mapper
+      // 解析 <mapper> 节点
       configurationElement(parser.evalNode("/mapper"));
-      //标记一下，已经加载过了
+      // 标记一下，已经加载过了
       configuration.addLoadedResource(resource);
-      //绑定映射器到namespace
+      // 绑定映射器到namespace
       bindMapperForNamespace();
     }
-
-    //还有没解析完的东东这里接着解析？  
+    // 处理 configurationElement 中解析失败的<resultMap>
     parsePendingResultMaps();
-    parsePendingChacheRefs();
+    // 处理configurationElement 中解析失败的<cache-ref>
+    parsePendingCacheRefs();
+    // 处理 configurationElement 中解析失败的 SQL 语句
     parsePendingStatements();
   }
 
@@ -185,8 +185,7 @@ public class XMLMapperBuilder extends BaseBuilder {
       }
     }
   }
-
-  private void parsePendingChacheRefs() {
+  private void parsePendingCacheRefs() {
     Collection<CacheRefResolver> incompleteCacheRefs = configuration.getIncompleteCacheRefs();
     synchronized (incompleteCacheRefs) {
       Iterator<CacheRefResolver> iter = incompleteCacheRefs.iterator();

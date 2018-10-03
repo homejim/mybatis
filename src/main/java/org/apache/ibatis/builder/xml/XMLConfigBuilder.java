@@ -528,44 +528,48 @@ public class XMLConfigBuilder extends BaseBuilder {
 //	<mappers>
 //	  <package name="org.mybatis.builder"/>
 //	</mappers>
-  private void mapperElement(XNode parent) throws Exception {
-    if (parent != null) {
-      for (XNode child : parent.getChildren()) {
-        if ("package".equals(child.getName())) {
-          //10.4自动扫描包下所有映射器
-          String mapperPackage = child.getStringAttribute("name");
-          configuration.addMappers(mapperPackage);
-        } else {
-          String resource = child.getStringAttribute("resource");
-          String url = child.getStringAttribute("url");
-          String mapperClass = child.getStringAttribute("class");
-          if (resource != null && url == null && mapperClass == null) {
-            //10.1使用类路径
-            ErrorContext.instance().resource(resource);
-            InputStream inputStream = Resources.getResourceAsStream(resource);
-            //映射器比较复杂，调用XMLMapperBuilder
-            //注意在for循环里每个mapper都重新new一个XMLMapperBuilder，来解析
-            XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, resource, configuration.getSqlFragments());
-            mapperParser.parse();
-          } else if (resource == null && url != null && mapperClass == null) {
-            //10.2使用绝对url路径
-            ErrorContext.instance().resource(url);
-            InputStream inputStream = Resources.getUrlAsStream(url);
-            //映射器比较复杂，调用XMLMapperBuilder
-            XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, url, configuration.getSqlFragments());
-            mapperParser.parse();
-          } else if (resource == null && url == null && mapperClass != null) {
-            //10.3使用java类名
-            Class<?> mapperInterface = Resources.classForName(mapperClass);
-            //直接把这个映射加入配置
-            configuration.addMapper(mapperInterface);
+    private void mapperElement(XNode parent) throws Exception {
+      if (parent != null) {
+        // 遍历其子节点
+        for (XNode child : parent.getChildren()) {
+          // 如果配置的是包(packege)
+          if ("package".equals(child.getName())) {
+            String mapperPackage = child.getStringAttribute("name");
+            configuration.addMappers(mapperPackage);
           } else {
-            throw new BuilderException("A mapper element may only specify a url, resource or class, but not more than one.");
+            // 如果配置的是类（有三种情况 resource / class / url）
+            String resource = child.getStringAttribute("resource");
+            String url = child.getStringAttribute("url");
+            String mapperClass = child.getStringAttribute("class");
+            // 配置一：使用 resource 类路径
+            if (resource != null && url == null && mapperClass == null) {
+              ErrorContext.instance().resource(resource);
+              InputStream inputStream = Resources.getResourceAsStream(resource);
+              // 创建 XMLMapperBuilder 对象
+              XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, resource, configuration.getSqlFragments());
+              // 解析 xxxMapper.xml
+              mapperParser.parse();
+              // 配置二： 使用 url 绝对路径
+            } else if (resource == null && url != null && mapperClass == null) {
+              ErrorContext.instance().resource(url);
+              InputStream inputStream = Resources.getUrlAsStream(url);
+              // 创建 XMLMapperBuilder 对象
+              XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, url, configuration.getSqlFragments());
+              // 解析 xxxMapper.xml
+              mapperParser.parse();
+              // 配置三： 使用 class 类名
+            } else if (resource == null && url == null && mapperClass != null) {
+              // 通过反射创建对象
+              Class<?> mapperInterface = Resources.classForName(mapperClass);
+              // 添加
+              configuration.addMapper(mapperInterface);
+            } else {
+              throw new BuilderException("A mapper element may only specify a url, resource or class, but not more than one.");
+            }
           }
         }
       }
     }
-  }
 
 	//比较id和environment是否相等
   private boolean isSpecifiedEnvironment(String id) {
