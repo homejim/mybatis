@@ -1,7 +1,8 @@
-本项目是从[tuguangquan/mybatis](https://github.com/tuguangquan/mybatis) 的项目上新建的分支， 由于原项目太久没有维护，
-而且相关的mybatis代码也没有及时更新， 因此新建了一个分支
+该项目已经不更新， 请查看我最新的项目 [mybatis-cn](https://github.com/homejim/mybatis-cn)
+------------------
 
-在后续的过程中， 随着我源码的阅读， 会不断更新这个项目的mybatis代码和注释
+本项目是从[tuguangquan/mybatis](https://github.com/tuguangquan/mybatis) 的项目上新建的分支， 由于原项目太久没有维护，
+而且在mybatis更新之后，相关的mybatis代码也没有及时更新， 因此新建了一个分支
 
 mybatis源码中文注释版
 
